@@ -5,9 +5,9 @@ import (
 )
 
 type CosmosHandler struct {
-	DbManager *cosmicmodel.CosmosDB
+	CosmosDB *cosmicmodel.CosmosDB
 }
 
-func Creation(DbManager *cosmicmodel.CosmosDB) *CosmosHandler {
-	return &CosmosHandler{DbManager: DbManager}
+func Creation(CosmosDB *cosmicmodel.CosmosDB) *CosmosHandler {
+	return &CosmosHandler{CosmosDB: CosmosDB}
 }
