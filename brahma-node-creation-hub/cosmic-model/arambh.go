@@ -8,21 +8,21 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type DbManager struct {
+type CosmosDB struct {
 	DB          *gorm.DB
 	RedisClient *redis.Client
 	Lock        sync.Mutex
 	ctx         context.Context
 }
 
-func DivineNavel(db *gorm.DB, redisClient *redis.Client, ipPool string) *DbManager {
+func DivineNavel(db *gorm.DB, redisClient *redis.Client, ipPool string) *CosmosDB {
 	ctx := context.Background()
 
 	if _, err := redisClient.Ping(ctx).Result(); err != nil {
 		return nil
 	}
 
-	return &DbManager{
+	return &CosmosDB{
 		DB:          db,
 		RedisClient: redisClient,
 		ctx:         context.Background(),
