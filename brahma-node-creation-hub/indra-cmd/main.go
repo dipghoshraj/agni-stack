@@ -1,7 +1,6 @@
 package main
 
 import (
-	vishnusapplicationinterface "brahma-node-creation-hub/vishnus-application-interface"
 	"context"
 	"fmt"
 	"log"
@@ -28,7 +27,6 @@ type Config struct {
 }
 
 func main() {
-	vishnusapplicationinterface.Init()
 	fmt.Println("here starts the creation")
 
 	config, err := loadConfig()
