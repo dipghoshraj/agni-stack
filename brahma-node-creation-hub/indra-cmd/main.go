@@ -1,13 +1,20 @@
 package main
 
 import (
+	cosmicmodel "brahma-node-creation-hub/cosmic-model"
+	"brahma-node-creation-hub/karma"
+	vishnusapplicationinterface "brahma-node-creation-hub/vishnus-application-interface"
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -35,10 +42,10 @@ func main() {
 	}
 
 	// Initialize database connections
-	// db, err := initializeDB(config)
-	// if err != nil {
-	// 	log.Fatalf("Failed to initialize database: %v", err)
-	// }
+	db, err := initializeDB(config)
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
 
 	redisClient, err := initializeRedis(config)
 	if err != nil {
@@ -46,9 +53,67 @@ func main() {
 	}
 	defer redisClient.Close()
 
-	// ipPool := "192.168.1.1/6"
+	ipPool := "192.168.1.1/6"
 
 	initializePortPool(redisClient, 8081, 8091)
+
+	lokaManager := cosmicmodel.DivineNavel(db, redisClient, ipPool)
+	handler := karma.Creation(lokaManager)
+	nmHandler := vishnusapplicationinterface.VAICreation(handler)
+
+	router := setupRouter(nmHandler)
+
+	// Start server
+	server := &http.Server{
+		Addr:         ":" + config.ServerPort,
+		Handler:      router,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	go func() {
+		log.Printf("Starting server on port %s", config.ServerPort)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+
+	gracefulShutdown(server, lokaManager)
+}
+
+func gracefulShutdown(server *http.Server, cosmosdb *cosmicmodel.CosmosDB) {
+	// Wait for interrupt signal
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	<-stop
+
+	log.Println("Shutting down server...")
+
+	// Create shutdown context with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	// Attempt graceful shutdown
+	if err := server.Shutdown(ctx); err != nil {
+		log.Printf("Error during server shutdown: %v", err)
+	}
+
+	// Close database connections
+	if sqlDB, err := cosmosdb.DB.DB(); err == nil {
+		sqlDB.Close()
+	}
+
+	log.Println("Server stopped")
+}
+
+func setupRouter(nodeManager *vishnusapplicationinterface.VAI) *mux.Router {
+	router := mux.NewRouter()
+
+	// Setup routes
+	vishnusapplicationinterface.SetupRoutes(router, nodeManager)
+
+	return router
 }
 
 func getEnv(key, defaultValue string) string {

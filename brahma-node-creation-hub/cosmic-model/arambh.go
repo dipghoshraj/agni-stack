@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type CosmosDB struct {
