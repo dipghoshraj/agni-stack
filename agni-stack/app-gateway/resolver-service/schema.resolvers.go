@@ -28,8 +28,12 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput
 }
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, email string, password string) (string, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (string, error) {
+	token, err := service.LoginUser(ctx, input)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }
 
 // Users is the resolver for the users field.

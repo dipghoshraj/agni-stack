@@ -6,6 +6,7 @@ import (
 	dbmodel "app-gateway/resolver-service/model"
 	"app-gateway/utils"
 	"context"
+	"fmt"
 )
 
 func CreateUser(ctx context.Context, input model.UserInput) (*dbmodel.User, error) {
@@ -26,4 +27,24 @@ func CreateUser(ctx context.Context, input model.UserInput) (*dbmodel.User, erro
 	}
 
 	return &user, nil
+}
+
+func LoginUser(ctx context.Context, input model.LoginInput) (string, error) {
+	user := dbmodel.User{}
+	err := database.DB.Where("email = ?", input.Email).First(&user).Error
+	if err != nil {
+		return "", err
+	}
+
+	valid_password := utils.CheckPassword(user.Password, input.Password)
+	if !valid_password {
+		return "", fmt.Errorf("Invalid password")
+	}
+
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
