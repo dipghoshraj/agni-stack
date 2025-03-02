@@ -20,21 +20,21 @@ func GenerateToken(userid int64) (string, error) {
 	return token, nil
 }
 
-func VerifyToken(tokenString string) (string, error) {
+func VerifyToken(tokenString string) (float64, error) {
 	claims := jwt.MapClaims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte("secret"), nil
 	})
 	if err != nil {
-		return "", err
+		return 0.0, err
 	}
 
 	if !token.Valid {
-		return "", err
+		return 0.0, err
 	}
 
-	userid := claims["user_id"].(string)
+	userid := claims["user_id"].(float64)
 
 	return userid, nil
 }

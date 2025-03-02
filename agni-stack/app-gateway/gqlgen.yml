@@ -152,8 +152,3 @@ models:
     model:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
-
-
-directives:
-  auth:
-    implementation: directive.AuthDirective

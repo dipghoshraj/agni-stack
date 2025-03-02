@@ -4,6 +4,7 @@ import (
 	"app-gateway/utils"
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 )
@@ -11,15 +12,26 @@ import (
 var jwtSecret = []byte("secret")
 
 func AuthDirective(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
-	// Get the token from the context
-	token, ok := ctx.Value("Authorization").(string)
 
-	if !ok || token == "" {
+	httpRequest := graphql.GetOperationContext(ctx)
+	if httpRequest == nil {
+		return nil, errors.New("unable to retrieve request context")
+	}
+
+	// Get the token from the context
+	authHeader := httpRequest.Headers.Get("Authorization")
+
+	if authHeader == "" {
 		return nil, errors.New("missing authorization header")
 	}
 
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	if tokenString == authHeader {
+		return nil, errors.New("invalid authorization format")
+	}
+
 	// Verify the token
-	userid, err := utils.VerifyToken(token)
+	userid, err := utils.VerifyToken(tokenString)
 	if err != nil {
 		return nil, err
 	}

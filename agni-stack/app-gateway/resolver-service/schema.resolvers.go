@@ -36,9 +36,9 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (s
 	return token, nil
 }
 
-// Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	userID, ok := ctx.Value("userID").(int)
+// MyDetails is the resolver for the myDetails field.
+func (r *queryResolver) MyDetails(ctx context.Context) (*model.User, error) {
+	userID, ok := ctx.Value("user_id").(float64)
 	if !ok || userID == 0 {
 		return nil, fmt.Errorf("missing user ID")
 	}
@@ -54,7 +54,7 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 		Email: user.Email,
 	}
 
-	return []*model.User{userdata}, nil
+	return userdata, nil
 }
 
 // Mutation returns graph.MutationResolver implementation.

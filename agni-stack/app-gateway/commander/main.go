@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 
+	"app-gateway/directives"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
@@ -30,7 +32,10 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &resolverService.Resolver{}}))
+	config := graph.Config{Resolvers: &resolverService.Resolver{}}
+	config.Directives.Auth = directives.AuthDirective
+
+	srv := handler.New(graph.NewExecutableSchema(config))
 
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})

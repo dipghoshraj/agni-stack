@@ -24,7 +24,7 @@ input LoginInput {
 }
 
 type Query {
-  users: [User!]!
+  myDetails: User! @auth
 }
 
 type Mutation {
