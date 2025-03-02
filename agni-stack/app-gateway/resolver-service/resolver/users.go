@@ -48,3 +48,13 @@ func LoginUser(ctx context.Context, input model.LoginInput) (string, error) {
 
 	return token, nil
 }
+
+func GetUser(ctx context.Context, id int64) (*dbmodel.User, error) {
+	user := dbmodel.User{}
+	err := database.DB.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

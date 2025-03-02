@@ -38,7 +38,23 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (s
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
+	userID, ok := ctx.Value("userID").(int)
+	if !ok || userID == 0 {
+		return nil, fmt.Errorf("missing user ID")
+	}
+
+	user, err := service.GetUser(ctx, int64(userID))
+	if err != nil {
+		return nil, err
+	}
+
+	userdata := &model.User{
+		ID:    strconv.FormatInt(user.ID, 10),
+		Name:  user.Name,
+		Email: user.Email,
+	}
+
+	return []*model.User{userdata}, nil
 }
 
 // Mutation returns graph.MutationResolver implementation.
