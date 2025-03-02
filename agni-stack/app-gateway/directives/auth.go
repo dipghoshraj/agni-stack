@@ -1,4 +1,4 @@
-package directive
+package directives
 
 import (
 	"app-gateway/utils"
