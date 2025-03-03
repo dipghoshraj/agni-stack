@@ -12,6 +12,23 @@ type User {
   email: String!
 }
 
+type Project {
+  id: ID!
+  name: String!
+  description: String
+  owner: User!
+  apps: [App!]!
+}
+
+type App {
+  id: ID!
+  name: String!
+  description: String
+  owner: User!
+  image: String
+  project: Project!
+}
+
 input UserInput {
   name: String!
   email: String!

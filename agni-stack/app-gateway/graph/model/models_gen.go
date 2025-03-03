@@ -2,12 +2,29 @@
 
 package model
 
+type App struct {
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Description *string  `json:"description,omitempty"`
+	Owner       *User    `json:"owner"`
+	Image       *string  `json:"image,omitempty"`
+	Project     *Project `json:"project"`
+}
+
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type Mutation struct {
+}
+
+type Project struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+	Owner       *User   `json:"owner"`
+	Apps        []*App  `json:"apps"`
 }
 
 type Query struct {
