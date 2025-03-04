@@ -31,9 +31,11 @@ type Query struct {
 }
 
 type User struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID       string     `json:"id"`
+	Name     string     `json:"name"`
+	Email    string     `json:"email"`
+	Apps     []*App     `json:"apps"`
+	Projects []*Project `json:"projects"`
 }
 
 type UserInput struct {
