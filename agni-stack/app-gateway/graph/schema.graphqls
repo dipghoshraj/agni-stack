@@ -18,7 +18,7 @@ type Project {
   id: ID!
   name: String!
   description: String
-  owner: User!
+  owner: User! @omit
   apps: [App!]!
 }
 
@@ -26,9 +26,9 @@ type App {
   id: ID!
   name: String!
   description: String
-  owner: User!
+  owner: User! @omit
   image: String
-  project: Project!
+  project: Project! @omit
 }
 
 input UserInput {
