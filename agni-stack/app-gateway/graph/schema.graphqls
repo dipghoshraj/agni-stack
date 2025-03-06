@@ -42,11 +42,28 @@ input LoginInput {
   password: String!
 }
 
+input ProjectInput {
+  name: String!
+  description: String
+}
+
+input AppInput {
+  name: String!
+  description: String
+  image: String
+}
+
 type Query {
   myDetails: User! @auth
+  projects: [Project!]! @auth
+  apps: [App!]! @auth
+  project(id: ID!): Project! @auth
+  app(id: ID!): App! @auth
 }
 
 type Mutation {
   createUser(input: UserInput!): User!
   login(input: LoginInput!): String! # JWT token
+  createProject(input ProjectInput!): Project! @auth
+  createApp(input: AppInput!): App! @auth
 }
