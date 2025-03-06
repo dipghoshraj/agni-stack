@@ -11,6 +11,12 @@ type App struct {
 	Project     *Project `json:"project"`
 }
 
+type AppInput struct {
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+	Image       *string `json:"image,omitempty"`
+}
+
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -25,6 +31,11 @@ type Project struct {
 	Description *string `json:"description,omitempty"`
 	Owner       *User   `json:"owner"`
 	Apps        []*App  `json:"apps"`
+}
+
+type ProjectInput struct {
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
 }
 
 type Query struct {

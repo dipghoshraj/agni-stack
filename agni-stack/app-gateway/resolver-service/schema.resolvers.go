@@ -36,6 +36,16 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (s
 	return token, nil
 }
 
+// CreateProject is the resolver for the createProject field.
+func (r *mutationResolver) CreateProject(ctx context.Context, input model.ProjectInput) (*model.Project, error) {
+	panic(fmt.Errorf("not implemented: CreateProject - createProject"))
+}
+
+// CreateApp is the resolver for the createApp field.
+func (r *mutationResolver) CreateApp(ctx context.Context, input model.AppInput) (*model.App, error) {
+	panic(fmt.Errorf("not implemented: CreateApp - createApp"))
+}
+
 // MyDetails is the resolver for the myDetails field.
 func (r *queryResolver) MyDetails(ctx context.Context) (*model.User, error) {
 	userID, ok := ctx.Value("user_id").(float64)
@@ -55,6 +65,26 @@ func (r *queryResolver) MyDetails(ctx context.Context) (*model.User, error) {
 	}
 
 	return userdata, nil
+}
+
+// Projects is the resolver for the projects field.
+func (r *queryResolver) Projects(ctx context.Context) ([]*model.Project, error) {
+	panic(fmt.Errorf("not implemented: Projects - projects"))
+}
+
+// Apps is the resolver for the apps field.
+func (r *queryResolver) Apps(ctx context.Context) ([]*model.App, error) {
+	panic(fmt.Errorf("not implemented: Apps - apps"))
+}
+
+// Project is the resolver for the project field.
+func (r *queryResolver) Project(ctx context.Context, id string) (*model.Project, error) {
+	panic(fmt.Errorf("not implemented: Project - project"))
+}
+
+// App is the resolver for the app field.
+func (r *queryResolver) App(ctx context.Context, id string) (*model.App, error) {
+	panic(fmt.Errorf("not implemented: App - app"))
 }
 
 // Mutation returns graph.MutationResolver implementation.

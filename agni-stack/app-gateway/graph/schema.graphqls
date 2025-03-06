@@ -64,6 +64,6 @@ type Query {
 type Mutation {
   createUser(input: UserInput!): User!
   login(input: LoginInput!): String! # JWT token
-  createProject(input ProjectInput!): Project! @auth
+  createProject(input: ProjectInput!): Project! @auth
   createApp(input: AppInput!): App! @auth
 }
