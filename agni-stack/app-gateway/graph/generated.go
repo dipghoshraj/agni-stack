@@ -39,6 +39,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	AuthResponse() AuthResponseResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 }
@@ -113,6 +114,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type AuthResponseResolver interface {
+	User(ctx context.Context, obj *model.AuthResponse) (*model.BasicUser, error)
+}
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.UserInput) (*model.User, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error)
@@ -1153,7 +1157,7 @@ func (ec *executionContext) _AuthResponse_user(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
+		return ec.resolvers.AuthResponse().User(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1171,8 +1175,8 @@ func (ec *executionContext) fieldContext_AuthResponse_user(_ context.Context, fi
 	fc = &graphql.FieldContext{
 		Object:     "AuthResponse",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -2083,14 +2087,11 @@ func (ec *executionContext) _Project_owner(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*model.BasicUser)
 	fc.Result = res
-	return ec.marshalNUser2ᚖappᚑgatewayᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalOBasicUser2ᚖappᚑgatewayᚋgraphᚋmodelᚐBasicUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Project_owner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2102,17 +2103,13 @@ func (ec *executionContext) fieldContext_Project_owner(_ context.Context, field 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_User_id(ctx, field)
+				return ec.fieldContext_BasicUser_id(ctx, field)
 			case "name":
-				return ec.fieldContext_User_name(ctx, field)
+				return ec.fieldContext_BasicUser_name(ctx, field)
 			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "apps":
-				return ec.fieldContext_User_apps(ctx, field)
-			case "projects":
-				return ec.fieldContext_User_projects(ctx, field)
+				return ec.fieldContext_BasicUser_email(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type BasicUser", field.Name)
 		},
 	}
 	return fc, nil
@@ -2144,9 +2141,9 @@ func (ec *executionContext) _Project_apps(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.App)
+	res := resTmp.([]*model.BasicApp)
 	fc.Result = res
-	return ec.marshalNApp2ᚕᚖappᚑgatewayᚋgraphᚋmodelᚐAppᚄ(ctx, field.Selections, res)
+	return ec.marshalNBasicApp2ᚕᚖappᚑgatewayᚋgraphᚋmodelᚐBasicAppᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Project_apps(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2158,19 +2155,15 @@ func (ec *executionContext) fieldContext_Project_apps(_ context.Context, field g
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_App_id(ctx, field)
+				return ec.fieldContext_BasicApp_id(ctx, field)
 			case "name":
-				return ec.fieldContext_App_name(ctx, field)
+				return ec.fieldContext_BasicApp_name(ctx, field)
 			case "description":
-				return ec.fieldContext_App_description(ctx, field)
-			case "owner":
-				return ec.fieldContext_App_owner(ctx, field)
+				return ec.fieldContext_BasicApp_description(ctx, field)
 			case "image":
-				return ec.fieldContext_App_image(ctx, field)
-			case "project":
-				return ec.fieldContext_App_project(ctx, field)
+				return ec.fieldContext_BasicApp_image(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type App", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type BasicApp", field.Name)
 		},
 	}
 	return fc, nil
@@ -5139,10 +5132,41 @@ func (ec *executionContext) _AuthResponse(ctx context.Context, sel ast.Selection
 		case "token":
 			out.Values[i] = ec._AuthResponse_token(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "user":
-			out.Values[i] = ec._AuthResponse_user(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuthResponse_user(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5410,9 +5434,6 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "owner":
 			out.Values[i] = ec._Project_owner(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "apps":
 			out.Values[i] = ec._Project_apps(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

@@ -13,6 +13,11 @@ import (
 	"strconv"
 )
 
+// User is the resolver for the user field.
+func (r *authResponseResolver) User(ctx context.Context, obj *model.AuthResponse) (*model.BasicUser, error) {
+	panic(fmt.Errorf("not implemented: User - user"))
+}
+
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput) (*model.User, error) {
 	user, err := service.CreateUser(ctx, input)
@@ -97,11 +102,15 @@ func (r *queryResolver) App(ctx context.Context, id string) (*model.App, error) 
 	panic(fmt.Errorf("not implemented: App - app"))
 }
 
+// AuthResponse returns graph.AuthResponseResolver implementation.
+func (r *Resolver) AuthResponse() graph.AuthResponseResolver { return &authResponseResolver{r} }
+
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 
+type authResponseResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

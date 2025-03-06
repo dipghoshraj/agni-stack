@@ -18,8 +18,8 @@ type Project {
   id: ID!
   name: String!
   description: String!
-  owner: User!
-  apps: [App!]!
+  owner: BasicUser
+  apps: [BasicApp!]!
 }
 
 type App {

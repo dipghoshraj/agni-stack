@@ -50,11 +50,11 @@ type Mutation struct {
 }
 
 type Project struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Owner       *User  `json:"owner"`
-	Apps        []*App `json:"apps"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Owner       *BasicUser  `json:"owner,omitempty"`
+	Apps        []*BasicApp `json:"apps"`
 }
 
 type ProjectInput struct {
