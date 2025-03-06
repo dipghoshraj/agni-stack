@@ -3,18 +3,42 @@
 package model
 
 type App struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description *string  `json:"description,omitempty"`
-	Owner       *User    `json:"owner"`
-	Image       *string  `json:"image,omitempty"`
-	Project     *Project `json:"project"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Owner       *BasicUser    `json:"owner,omitempty"`
+	Image       *string       `json:"image,omitempty"`
+	Project     *BasicProject `json:"project,omitempty"`
 }
 
 type AppInput struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description,omitempty"`
 	Image       *string `json:"image,omitempty"`
+}
+
+type AuthResponse struct {
+	Token string     `json:"token"`
+	User  *BasicUser `json:"user,omitempty"`
+}
+
+type BasicApp struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+	Image       *string `json:"image,omitempty"`
+}
+
+type BasicProject struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type BasicUser struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 type LoginInput struct {
@@ -26,11 +50,11 @@ type Mutation struct {
 }
 
 type Project struct {
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	Description *string `json:"description,omitempty"`
-	Owner       *User   `json:"owner"`
-	Apps        []*App  `json:"apps"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Owner       *User  `json:"owner"`
+	Apps        []*App `json:"apps"`
 }
 
 type ProjectInput struct {
@@ -42,11 +66,11 @@ type Query struct {
 }
 
 type User struct {
-	ID       string     `json:"id"`
-	Name     string     `json:"name"`
-	Email    string     `json:"email"`
-	Apps     []*App     `json:"apps"`
-	Projects []*Project `json:"projects"`
+	ID       string          `json:"id"`
+	Name     string          `json:"name"`
+	Email    string          `json:"email"`
+	Apps     []*BasicApp     `json:"apps"`
+	Projects []*BasicProject `json:"projects"`
 }
 
 type UserInput struct {

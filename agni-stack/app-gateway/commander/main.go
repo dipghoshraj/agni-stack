@@ -25,7 +25,7 @@ func main() {
 
 	godotenv.Load()
 	database.InitDb()
-	// database.MigrateDB()
+	database.MigrateDB()
 
 	port := os.Getenv("PORT")
 	if port == "" {

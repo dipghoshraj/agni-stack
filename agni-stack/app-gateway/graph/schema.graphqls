@@ -10,14 +10,14 @@ type User {
   id: ID!
   name: String!
   email: String!
-  apps: [App!]!
-  projects: [Project!]!
+  apps: [BasicApp!]!
+  projects: [BasicProject!]!
 }
 
 type Project {
   id: ID!
   name: String!
-  description: String
+  description: String!
   owner: User!
   apps: [App!]!
 }
@@ -25,10 +25,29 @@ type Project {
 type App {
   id: ID!
   name: String!
-  description: String
-  owner: User!
+  description: String!
+  owner: BasicUser
   image: String
-  project: Project!
+  project: BasicProject
+}
+
+type BasicUser {
+  id: ID!
+  name: String!
+  email: String!
+}
+
+type BasicProject {
+  id: ID!
+  name: String!
+  description: String!
+}
+
+type BasicApp {
+  id: ID!
+  name: String!
+  description: String
+  image: String
 }
 
 input UserInput {
@@ -53,6 +72,11 @@ input AppInput {
   image: String
 }
 
+type AuthResponse {
+  token: String!
+  user: BasicUser
+}
+
 type Query {
   myDetails: User! @auth
   projects: [Project!]! @auth
@@ -63,7 +87,7 @@ type Query {
 
 type Mutation {
   createUser(input: UserInput!): User!
-  login(input: LoginInput!): String! # JWT token
+  login(input: LoginInput!): AuthResponse! # JWT token
   createProject(input: ProjectInput!): Project! @auth
   createApp(input: AppInput!): App! @auth
 }

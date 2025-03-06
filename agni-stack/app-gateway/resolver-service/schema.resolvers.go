@@ -28,17 +28,27 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput
 }
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (string, error) {
-	token, err := service.LoginUser(ctx, input)
-	if err != nil {
-		return "", err
-	}
-	return token, nil
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
+	// token, err := service.LoginUser(ctx, input)
+	// if err != nil {
+	// 	return "", err
+	// }
+	// return token, nil
+	panic(fmt.Errorf("not implemented: CreateApp - createApp"))
 }
 
 // CreateProject is the resolver for the createProject field.
 func (r *mutationResolver) CreateProject(ctx context.Context, input model.ProjectInput) (*model.Project, error) {
-	panic(fmt.Errorf("not implemented: CreateProject - createProject"))
+	project, err := service.CreateProject(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Project{
+		ID:          strconv.FormatInt(project.ID, 10),
+		Name:        project.Name,
+		Description: project.Description,
+	}, nil
 }
 
 // CreateApp is the resolver for the createApp field.
