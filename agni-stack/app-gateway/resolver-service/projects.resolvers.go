@@ -6,13 +6,26 @@ package resolverService
 
 import (
 	"app-gateway/graph/model"
+	service "app-gateway/resolver-service/resolver"
 	"context"
 	"fmt"
+	"strconv"
 )
 
 // CreateProject is the resolver for the createProject field.
 func (r *mutationResolver) CreateProject(ctx context.Context, input model.ProjectInput) (*model.Project, error) {
-	panic(fmt.Errorf("not implemented: CreateProject - createProject"))
+	// panic(fmt.Errorf("not implemented: CreateProject - createProject"))
+
+	project, err := service.CreateProject(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Project{
+		ID:          strconv.FormatInt(project.ID, 10),
+		Name:        project.Name,
+		Description: project.Description,
+	}, nil
 }
 
 // Projects is the resolver for the projects field.
