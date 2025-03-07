@@ -2,6 +2,7 @@ package main
 
 import (
 	"app-gateway/graph"
+	repository "app-gateway/repository"
 	"app-gateway/repository/database"
 	resolverService "app-gateway/resolver-service"
 	"log"
@@ -31,6 +32,8 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
+
+	repository.InitRepositoryManager()
 
 	config := graph.Config{Resolvers: &resolverService.Resolver{}}
 	config.Directives.Auth = directives.AuthDirective

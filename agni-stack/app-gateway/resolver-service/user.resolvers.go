@@ -9,7 +9,6 @@ import (
 	service "app-gateway/resolver-service/resolver"
 	"context"
 	"fmt"
-	"strconv"
 )
 
 // CreateUser is the resolver for the createUser field.
@@ -20,28 +19,18 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput
 		return nil, err
 	}
 
-	return &model.User{
-		ID:    strconv.FormatInt(user.ID, 10),
-		Name:  user.Name,
-		Email: user.Email,
-	}, nil
+	return user, nil
 }
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
 	// panic(fmt.Errorf("not implemented: Login - login"))
 
-	user, token, err := service.LoginUser(ctx, input)
+	user, err := service.LoginUser(ctx, input)
 	if err != nil {
 		return nil, err
 	}
-	ctx = context.WithValue(ctx, "user_id", user.ID)
-	return &model.AuthResponse{
-		Token: token,
-		ID:    strconv.FormatInt(user.ID, 10),
-		Name:  user.Name,
-		Email: user.Email,
-	}, nil
+	return user, nil
 }
 
 // MyDetails is the resolver for the myDetails field.
@@ -57,9 +46,5 @@ func (r *queryResolver) MyDetails(ctx context.Context) (*model.User, error) {
 		return nil, err
 	}
 
-	return &model.User{
-		ID:    strconv.FormatInt(user.ID, 10),
-		Name:  user.Name,
-		Email: user.Email,
-	}, nil
+	return user, nil
 }
