@@ -1,0 +1,25 @@
+
+
+type App {
+  id: ID!
+  name: String!
+  description: String!
+  owner: BasicUser
+  image: String
+  project: BasicProject
+}
+
+input AppInput {
+  name: String!
+  description: String
+  image: String
+}
+
+extend type Query {
+  apps: [App!]! @auth
+  app(id: ID!): App! @auth
+}
+
+extend type Mutation {
+  createApp(input: AppInput!): App! @auth
+}

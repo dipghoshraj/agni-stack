@@ -2,6 +2,21 @@
 
 package model
 
+type App struct {
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Owner       *BasicUser    `json:"owner,omitempty"`
+	Image       *string       `json:"image,omitempty"`
+	Project     *BasicProject `json:"project,omitempty"`
+}
+
+type AppInput struct {
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+	Image       *string `json:"image,omitempty"`
+}
+
 type AuthResponse struct {
 	Token string `json:"token"`
 	ID    string `json:"id"`
