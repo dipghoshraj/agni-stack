@@ -6,100 +6,18 @@ package resolverService
 
 import (
 	"app-gateway/graph"
-	"app-gateway/graph/model"
-	service "app-gateway/resolver-service/resolver"
 	"context"
 	"fmt"
-	"strconv"
 )
 
-// CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput) (*model.User, error) {
-	user, err := service.CreateUser(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.User{
-		ID:    strconv.FormatInt(user.ID, 10),
-		Name:  user.Name,
-		Email: user.Email,
-	}, nil
+// Empty is the resolver for the _empty field.
+func (r *mutationResolver) Empty(ctx context.Context) (*string, error) {
+	panic(fmt.Errorf("not implemented: Empty - _empty"))
 }
 
-// Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
-	user, token, err := service.LoginUser(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-	ctx = context.WithValue(ctx, "user_id", user.ID)
-	return &model.AuthResponse{
-		Token: token,
-		ID:    strconv.FormatInt(user.ID, 10),
-		Name:  user.Name,
-		Email: user.Email,
-	}, nil
-}
-
-// CreateProject is the resolver for the createProject field.
-func (r *mutationResolver) CreateProject(ctx context.Context, input model.ProjectInput) (*model.Project, error) {
-	project, err := service.CreateProject(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.Project{
-		ID:          strconv.FormatInt(project.ID, 10),
-		Name:        project.Name,
-		Description: project.Description,
-	}, nil
-}
-
-// CreateApp is the resolver for the createApp field.
-func (r *mutationResolver) CreateApp(ctx context.Context, input model.AppInput) (*model.App, error) {
-	panic(fmt.Errorf("not implemented: CreateApp - createApp"))
-}
-
-// MyDetails is the resolver for the myDetails field.
-func (r *queryResolver) MyDetails(ctx context.Context) (*model.User, error) {
-	userID, ok := ctx.Value("user_id").(float64)
-	if !ok || userID == 0 {
-		return nil, fmt.Errorf("missing user ID")
-	}
-
-	user, err := service.GetUser(ctx, int64(userID))
-	if err != nil {
-		return nil, err
-	}
-
-	userdata := &model.User{
-		ID:    strconv.FormatInt(user.ID, 10),
-		Name:  user.Name,
-		Email: user.Email,
-	}
-
-	return userdata, nil
-}
-
-// Projects is the resolver for the projects field.
-func (r *queryResolver) Projects(ctx context.Context) ([]*model.Project, error) {
-	panic(fmt.Errorf("not implemented: Projects - projects"))
-}
-
-// Apps is the resolver for the apps field.
-func (r *queryResolver) Apps(ctx context.Context) ([]*model.App, error) {
-	panic(fmt.Errorf("not implemented: Apps - apps"))
-}
-
-// Project is the resolver for the project field.
-func (r *queryResolver) Project(ctx context.Context, id string) (*model.Project, error) {
-	panic(fmt.Errorf("not implemented: Project - project"))
-}
-
-// App is the resolver for the app field.
-func (r *queryResolver) App(ctx context.Context, id string) (*model.App, error) {
-	panic(fmt.Errorf("not implemented: App - app"))
+// Empty is the resolver for the _empty field.
+func (r *queryResolver) Empty(ctx context.Context) (*string, error) {
+	panic(fmt.Errorf("not implemented: Empty - _empty"))
 }
 
 // Mutation returns graph.MutationResolver implementation.
@@ -110,31 +28,3 @@ func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *authResponseResolver) User(ctx context.Context, obj *model.AuthResponse) (*model.BasicUser, error) {
-	userID, ok := ctx.Value("user_id").(float64)
-	if !ok || userID == 0 {
-		return nil, fmt.Errorf("missing user ID")
-	}
-
-	user, err := service.GetUser(ctx, int64(userID))
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.BasicUser{
-		ID:    strconv.FormatInt(user.ID, 10),
-		Name:  user.Name,
-		Email: user.Email,
-	}, nil
-}
-func (r *Resolver) AuthResponse() graph.AuthResponseResolver { return &authResponseResolver{r} }
-type authResponseResolver struct{ *Resolver }
-*/
