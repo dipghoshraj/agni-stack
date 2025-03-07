@@ -74,7 +74,9 @@ input AppInput {
 
 type AuthResponse {
   token: String!
-  user: BasicUser
+  id: ID!
+  name: String!
+  email: String!
 }
 
 type Query {

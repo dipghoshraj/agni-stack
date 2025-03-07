@@ -39,7 +39,6 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	AuthResponse() AuthResponseResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 }
@@ -59,8 +58,10 @@ type ComplexityRoot struct {
 	}
 
 	AuthResponse struct {
+		Email func(childComplexity int) int
+		ID    func(childComplexity int) int
+		Name  func(childComplexity int) int
 		Token func(childComplexity int) int
-		User  func(childComplexity int) int
 	}
 
 	BasicApp struct {
@@ -114,9 +115,6 @@ type ComplexityRoot struct {
 	}
 }
 
-type AuthResponseResolver interface {
-	User(ctx context.Context, obj *model.AuthResponse) (*model.BasicUser, error)
-}
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.UserInput) (*model.User, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error)
@@ -192,19 +190,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.App.Project(childComplexity), true
 
+	case "AuthResponse.email":
+		if e.complexity.AuthResponse.Email == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.Email(childComplexity), true
+
+	case "AuthResponse.id":
+		if e.complexity.AuthResponse.ID == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.ID(childComplexity), true
+
+	case "AuthResponse.name":
+		if e.complexity.AuthResponse.Name == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.Name(childComplexity), true
+
 	case "AuthResponse.token":
 		if e.complexity.AuthResponse.Token == nil {
 			break
 		}
 
 		return e.complexity.AuthResponse.Token(childComplexity), true
-
-	case "AuthResponse.user":
-		if e.complexity.AuthResponse.User == nil {
-			break
-		}
-
-		return e.complexity.AuthResponse.User(childComplexity), true
 
 	case "BasicApp.description":
 		if e.complexity.BasicApp.Description == nil {
@@ -1143,8 +1155,8 @@ func (ec *executionContext) fieldContext_AuthResponse_token(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _AuthResponse_user(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuthResponse_user(ctx, field)
+func (ec *executionContext) _AuthResponse_id(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthResponse_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1157,36 +1169,119 @@ func (ec *executionContext) _AuthResponse_user(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AuthResponse().User(rctx, obj)
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.BasicUser)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOBasicUser2ᚖappᚑgatewayᚋgraphᚋmodelᚐBasicUser(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuthResponse_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuthResponse_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AuthResponse",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_BasicUser_id(ctx, field)
-			case "name":
-				return ec.fieldContext_BasicUser_name(ctx, field)
-			case "email":
-				return ec.fieldContext_BasicUser_email(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BasicUser", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthResponse_name(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthResponse_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthResponse_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthResponse_email(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthResponse_email(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Email, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthResponse_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1734,8 +1829,12 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 			switch field.Name {
 			case "token":
 				return ec.fieldContext_AuthResponse_token(ctx, field)
-			case "user":
-				return ec.fieldContext_AuthResponse_user(ctx, field)
+			case "id":
+				return ec.fieldContext_AuthResponse_id(ctx, field)
+			case "name":
+				return ec.fieldContext_AuthResponse_name(ctx, field)
+			case "email":
+				return ec.fieldContext_AuthResponse_email(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AuthResponse", field.Name)
 		},
@@ -5132,41 +5231,23 @@ func (ec *executionContext) _AuthResponse(ctx context.Context, sel ast.Selection
 		case "token":
 			out.Values[i] = ec._AuthResponse_token(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
-		case "user":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._AuthResponse_user(ctx, field, obj)
-				return res
+		case "id":
+			out.Values[i] = ec._AuthResponse_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
+		case "name":
+			out.Values[i] = ec._AuthResponse_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "email":
+			out.Values[i] = ec._AuthResponse_email(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

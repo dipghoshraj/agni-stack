@@ -18,8 +18,10 @@ type AppInput struct {
 }
 
 type AuthResponse struct {
-	Token string     `json:"token"`
-	User  *BasicUser `json:"user,omitempty"`
+	Token string `json:"token"`
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 type BasicApp struct {

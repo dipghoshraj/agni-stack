@@ -29,24 +29,24 @@ func CreateUser(ctx context.Context, input model.UserInput) (*dbmodel.User, erro
 	return &user, nil
 }
 
-func LoginUser(ctx context.Context, input model.LoginInput) (string, error) {
+func LoginUser(ctx context.Context, input model.LoginInput) (*dbmodel.User, string, error) {
 	user := dbmodel.User{}
 	err := database.DB.Where("email = ?", input.Email).First(&user).Error
 	if err != nil {
-		return "", err
+		return nil, "", err
 	}
 
 	valid_password := utils.CheckPassword(user.Password, input.Password)
 	if !valid_password {
-		return "", fmt.Errorf("Invalid password")
+		return nil, "", fmt.Errorf("Invalid password")
 	}
 
 	token, err := utils.GenerateToken(user.ID)
 	if err != nil {
-		return "", err
+		return nil, "", err
 	}
 
-	return token, nil
+	return &user, token, nil
 }
 
 func GetUser(ctx context.Context, id int64) (*dbmodel.User, error) {

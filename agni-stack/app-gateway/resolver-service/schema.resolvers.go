@@ -13,25 +13,6 @@ import (
 	"strconv"
 )
 
-// User is the resolver for the user field.
-func (r *authResponseResolver) User(ctx context.Context, obj *model.AuthResponse) (*model.BasicUser, error) {
-	userID, ok := ctx.Value("user_id").(float64)
-	if !ok || userID == 0 {
-		return nil, fmt.Errorf("missing user ID")
-	}
-
-	user, err := service.GetUser(ctx, int64(userID))
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.BasicUser{
-		ID:    strconv.FormatInt(user.ID, 10),
-		Name:  user.Name,
-		Email: user.Email,
-	}, nil
-}
-
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput) (*model.User, error) {
 	user, err := service.CreateUser(ctx, input)
@@ -48,12 +29,16 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
-	token, err := service.LoginUser(ctx, input)
+	user, token, err := service.LoginUser(ctx, input)
 	if err != nil {
 		return nil, err
 	}
+	ctx = context.WithValue(ctx, "user_id", user.ID)
 	return &model.AuthResponse{
 		Token: token,
+		ID:    strconv.FormatInt(user.ID, 10),
+		Name:  user.Name,
+		Email: user.Email,
 	}, nil
 }
 
@@ -117,15 +102,39 @@ func (r *queryResolver) App(ctx context.Context, id string) (*model.App, error) 
 	panic(fmt.Errorf("not implemented: App - app"))
 }
 
-// AuthResponse returns graph.AuthResponseResolver implementation.
-func (r *Resolver) AuthResponse() graph.AuthResponseResolver { return &authResponseResolver{r} }
-
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 
-type authResponseResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *authResponseResolver) User(ctx context.Context, obj *model.AuthResponse) (*model.BasicUser, error) {
+	userID, ok := ctx.Value("user_id").(float64)
+	if !ok || userID == 0 {
+		return nil, fmt.Errorf("missing user ID")
+	}
+
+	user, err := service.GetUser(ctx, int64(userID))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.BasicUser{
+		ID:    strconv.FormatInt(user.ID, 10),
+		Name:  user.Name,
+		Email: user.Email,
+	}, nil
+}
+func (r *Resolver) AuthResponse() graph.AuthResponseResolver { return &authResponseResolver{r} }
+type authResponseResolver struct{ *Resolver }
+*/
