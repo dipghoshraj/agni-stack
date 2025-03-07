@@ -1,7 +1,7 @@
 package database
 
 import (
-	dbmodel "app-gateway/resolver-service/model"
+	dbmodel "app-gateway/repository/model"
 	"log"
 )
 
