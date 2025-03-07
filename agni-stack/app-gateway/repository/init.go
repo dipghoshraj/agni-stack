@@ -18,6 +18,14 @@ type RepositoryManager struct {
 	UserRepo UserRepo
 }
 
+/*
+using singletone pattern for repository manager
+to avide the multiple dependency injection of repository manager
+to keep the single instance of repository manager
+
+make code more readable and maintainable
+*/
+
 func InitRepositoryManager() {
 	once.Do(func() {
 		instance = &RepositoryManager{
