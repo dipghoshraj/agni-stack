@@ -157,3 +157,8 @@ models:
     fields:
       user:
         resolver: true
+
+  User:
+    fields:
+        projects:
+          resolver: true

@@ -3,7 +3,7 @@ package resolver
 import (
 	"app-gateway/database"
 	"app-gateway/graph/model"
-	dbmodel "app-gateway/resolver-service/model"
+	dbmodel "app-gateway/repository/model"
 	"context"
 	"fmt"
 )
