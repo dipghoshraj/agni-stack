@@ -15,7 +15,21 @@ import (
 
 // User is the resolver for the user field.
 func (r *authResponseResolver) User(ctx context.Context, obj *model.AuthResponse) (*model.BasicUser, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+	userID, ok := ctx.Value("user_id").(float64)
+	if !ok || userID == 0 {
+		return nil, fmt.Errorf("missing user ID")
+	}
+
+	user, err := service.GetUser(ctx, int64(userID))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.BasicUser{
+		ID:    strconv.FormatInt(user.ID, 10),
+		Name:  user.Name,
+		Email: user.Email,
+	}, nil
 }
 
 // CreateUser is the resolver for the createUser field.
@@ -34,12 +48,13 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
-	// token, err := service.LoginUser(ctx, input)
-	// if err != nil {
-	// 	return "", err
-	// }
-	// return token, nil
-	panic(fmt.Errorf("not implemented: CreateApp - createApp"))
+	token, err := service.LoginUser(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+	return &model.AuthResponse{
+		Token: token,
+	}, nil
 }
 
 // CreateProject is the resolver for the createProject field.
