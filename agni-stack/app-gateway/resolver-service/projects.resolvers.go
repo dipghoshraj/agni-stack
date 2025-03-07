@@ -6,7 +6,7 @@ package resolverService
 
 import (
 	"app-gateway/graph/model"
-	service "app-gateway/resolver-service/resolver"
+	service "app-gateway/resolver-service/services"
 	"context"
 	"fmt"
 	"strconv"

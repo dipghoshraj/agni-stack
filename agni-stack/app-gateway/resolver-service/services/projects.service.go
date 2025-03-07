@@ -1,4 +1,4 @@
-package resolver
+package services
 
 import (
 	"app-gateway/graph/model"
