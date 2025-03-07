@@ -1,8 +1,8 @@
 package resolver
 
 import (
-	"app-gateway/database"
 	"app-gateway/graph/model"
+	"app-gateway/repository/database"
 	dbmodel "app-gateway/repository/model"
 	"context"
 	"fmt"

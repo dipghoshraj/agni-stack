@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"app-gateway/database"
+	"app-gateway/repository/database"
 	dbmodel "app-gateway/repository/model"
 	"context"
 )

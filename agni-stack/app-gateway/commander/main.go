@@ -1,8 +1,8 @@
 package main
 
 import (
-	"app-gateway/database"
 	"app-gateway/graph"
+	"app-gateway/repository/database"
 	resolverService "app-gateway/resolver-service"
 	"log"
 	"net/http"
