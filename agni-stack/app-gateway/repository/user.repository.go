@@ -10,8 +10,8 @@ type UserRepo interface {
 	CreateUser(ctx context.Context, user dbmodel.User) (*dbmodel.User, error)
 	GetUser(ctx context.Context, id int64) (*dbmodel.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*dbmodel.User, error)
-	GetProjectByUserID(ctx context.Context, user_id int64) (*dbmodel.Project, error)
-	GetAppByUserID(ctx context.Context, user_id int64) (*dbmodel.App, error)
+	GetProjectsByUserID(ctx context.Context, user_id int64) ([]*dbmodel.Project, error)
+	GetAppsByUserID(ctx context.Context, user_id int64) ([]*dbmodel.App, error)
 }
 
 func (r *userRepo) CreateUser(ctx context.Context, user dbmodel.User) (*dbmodel.User, error) {
@@ -44,22 +44,24 @@ func (r *userRepo) GetUserByEmail(ctx context.Context, email string) (*dbmodel.U
 	return &user, nil
 }
 
-func (r *userRepo) GetProjectByUserID(ctx context.Context, user_id int64) (*dbmodel.Project, error) {
-	project := dbmodel.Project{}
-	err := database.DB.Where("owner_id = ?", user_id).First(&project).Error
+func (r *userRepo) GetProjectsByUserID(ctx context.Context, user_id int64) ([]*dbmodel.Project, error) {
+	var projects []*dbmodel.Project
+
+	err := database.DB.Where("owner_id = ?", user_id).Find(&projects).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return &project, nil
+	return projects, nil
 }
 
-func (r *userRepo) GetAppByUserID(ctx context.Context, user_id int64) (*dbmodel.App, error) {
-	app := dbmodel.App{}
-	err := database.DB.Where("owner_id = ?", user_id).First(&app).Error
+func (r *userRepo) GetAppsByUserID(ctx context.Context, user_id int64) ([]*dbmodel.App, error) {
+	var app []*dbmodel.App
+
+	err := database.DB.Where("owner_id = ?", user_id).Find(&app).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return &app, nil
+	return app, nil
 }

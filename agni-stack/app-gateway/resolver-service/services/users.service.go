@@ -7,6 +7,7 @@ import (
 	"app-gateway/utils"
 	"context"
 	"fmt"
+	"slices"
 	"strconv"
 )
 
@@ -66,9 +67,67 @@ func GetUser(ctx context.Context, id int64) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &model.User{
+	fields := GetFields(ctx)
+
+	user_object := &model.User{
 		ID:    strconv.FormatInt(user.ID, 10),
 		Name:  user.Name,
 		Email: user.Email,
-	}, nil
+	}
+
+	if slices.Contains(fields, "projects") {
+		projects, err := getProjects(ctx, user.ID)
+		if err != nil {
+			return user_object, nil
+		}
+		user_object.Projects = projects
+	}
+
+	if slices.Contains(fields, "apps") {
+		apps, err := getAppss(ctx, user.ID)
+		if err != nil {
+			return nil, err
+		}
+		user_object.Apps = apps
+	}
+	return user_object, nil
+}
+
+func getProjects(ctx context.Context, user_id int64) ([]*model.BasicProject, error) {
+	project, err := repository.GetRepositoryManager().UserRepo.GetProjectsByUserID(ctx, user_id)
+	if err != nil {
+		return nil, err
+	}
+
+	graphqlProjects := make([]*model.BasicProject, len(project))
+
+	for i, dbModelproj := range project {
+
+		graphqlProjects[i] = &model.BasicProject{
+			ID:          strconv.FormatInt(dbModelproj.ID, 10),
+			Name:        dbModelproj.Name,
+			Description: dbModelproj.Description,
+		}
+	}
+
+	return graphqlProjects, nil
+}
+
+func getAppss(ctx context.Context, user_id int64) ([]*model.BasicApp, error) {
+	apps, err := repository.GetRepositoryManager().UserRepo.GetAppsByUserID(ctx, user_id)
+	if err != nil {
+		return nil, err
+	}
+	graphApps := make([]*model.BasicApp, len(apps))
+
+	for i, dbModelApp := range apps {
+		graphApps[i] = &model.BasicApp{
+			ID:          strconv.FormatInt(dbModelApp.ID, 10),
+			Name:        dbModelApp.Name,
+			Description: &dbModelApp.Description,
+			Image:       &dbModelApp.Image,
+		}
+	}
+
+	return graphApps, nil
 }
