@@ -5,8 +5,16 @@ import (
 	"sync"
 )
 
+var instance *RepositoryManager
+var once sync.Once
+
 type userRepo struct{}
 type projRepo struct{}
+
+type RepositoryManager struct {
+	UserRepo    UserRepo
+	ProjectRepo ProjectRepo
+}
 
 func NewUserRepository() UserRepo {
 	return &userRepo{}
@@ -14,14 +22,6 @@ func NewUserRepository() UserRepo {
 
 func NewProjectRepository() ProjectRepo {
 	return &projRepo{}
-}
-
-var instance *RepositoryManager
-var once sync.Once
-
-type RepositoryManager struct {
-	UserRepo    UserRepo
-	ProjectRepo ProjectRepo
 }
 
 /*
