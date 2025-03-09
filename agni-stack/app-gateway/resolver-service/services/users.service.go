@@ -23,7 +23,7 @@ func CreateUser(ctx context.Context, input model.UserInput) (*model.User, error)
 		Password: hashpassword,
 	}
 
-	userData, err := repository.GetRepositoryManager().DbRepo.CreateUser(ctx, user)
+	userData, err := repository.GetRepositoryManager().UserRepo.CreateUser(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func CreateUser(ctx context.Context, input model.UserInput) (*model.User, error)
 
 func LoginUser(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
 
-	user, err := repository.GetRepositoryManager().DbRepo.GetUserByEmail(ctx, input.Email)
+	user, err := repository.GetRepositoryManager().UserRepo.GetUserByEmail(ctx, input.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func LoginUser(ctx context.Context, input model.LoginInput) (*model.AuthResponse
 
 func GetUser(ctx context.Context, id int64) (*model.User, error) {
 	fields := GetFields(ctx)
-	user, err := repository.GetRepositoryManager().DbRepo.GetUser(ctx, id, fields)
+	user, err := repository.GetRepositoryManager().UserRepo.GetUser(ctx, id, fields)
 
 	if err != nil {
 		return nil, err
@@ -76,7 +76,10 @@ func GetUser(ctx context.Context, id int64) (*model.User, error) {
 		Email: user.Email,
 	}
 
-	//  TODO : this section is very inefficient this need to optimised with better model design so we dont have to iterate
+	/* TODO : this section is very inefficient this need to
+	optimised with better model design so we dont
+	have to iterate
+	*/
 
 	if slices.Contains(fields, "projects") {
 		projects, err := getProjects(user.Projects)
