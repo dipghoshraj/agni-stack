@@ -1,21 +1,31 @@
 package repository
 
 import (
+	dbmodel "app-gateway/repository/model"
+	"context"
 	"log"
 	"sync"
 )
 
-type userRepo struct{}
+type dbRepo struct{}
 
-func NewUserRepository() UserRepo {
-	return &userRepo{}
+type DbRepo interface {
+	CreateUser(ctx context.Context, user dbmodel.User) (*dbmodel.User, error)
+	GetUser(ctx context.Context, id int64, fileds []string) (*dbmodel.User, error)
+	GetUserByEmail(ctx context.Context, email string) (*dbmodel.User, error)
+	GetProjectsByUserID(ctx context.Context, user_id int64) ([]*dbmodel.Project, error)
+	GetAppsByUserID(ctx context.Context, user_id int64) ([]*dbmodel.App, error)
+}
+
+func NewRepository() DbRepo {
+	return &dbRepo{}
 }
 
 var instance *RepositoryManager
 var once sync.Once
 
 type RepositoryManager struct {
-	UserRepo UserRepo
+	DbRepo DbRepo
 }
 
 /*
@@ -29,7 +39,7 @@ make code more readable and maintainable
 func InitRepositoryManager() {
 	once.Do(func() {
 		instance = &RepositoryManager{
-			UserRepo: NewUserRepository(),
+			DbRepo: NewRepository(),
 		}
 		log.Println("RepositoryManager initialized")
 	})
