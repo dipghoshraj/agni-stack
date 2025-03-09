@@ -63,11 +63,12 @@ func LoginUser(ctx context.Context, input model.LoginInput) (*model.AuthResponse
 }
 
 func GetUser(ctx context.Context, id int64) (*model.User, error) {
-	user, err := repository.GetRepositoryManager().UserRepo.GetUser(ctx, id)
+	fields := GetFields(ctx)
+	user, err := repository.GetRepositoryManager().UserRepo.GetUser(ctx, id, fields)
+
 	if err != nil {
 		return nil, err
 	}
-	fields := GetFields(ctx)
 
 	user_object := &model.User{
 		ID:    strconv.FormatInt(user.ID, 10),
@@ -75,11 +76,10 @@ func GetUser(ctx context.Context, id int64) (*model.User, error) {
 		Email: user.Email,
 	}
 
-
-	//  TODO : this section is very inefficient this need to optimised with conditional preloading inside repository
+	//  TODO : this section is very inefficient this need to optimised with better model design so we dont have to iterate
 
 	if slices.Contains(fields, "projects") {
-		projects, err := getProjects(ctx, user.ID)
+		projects, err := getProjects(user.Projects)
 		if err != nil {
 			return user_object, nil
 		}
@@ -87,7 +87,7 @@ func GetUser(ctx context.Context, id int64) (*model.User, error) {
 	}
 
 	if slices.Contains(fields, "apps") {
-		apps, err := getAppss(ctx, user.ID)
+		apps, err := getAppss(user.Apps)
 		if err != nil {
 			return nil, err
 		}
@@ -96,15 +96,10 @@ func GetUser(ctx context.Context, id int64) (*model.User, error) {
 	return user_object, nil
 }
 
-func getProjects(ctx context.Context, user_id int64) ([]*model.BasicProject, error) {
-	project, err := repository.GetRepositoryManager().UserRepo.GetProjectsByUserID(ctx, user_id)
-	if err != nil {
-		return nil, err
-	}
+func getProjects(projects []dbmodel.Project) ([]*model.BasicProject, error) {
 
-	graphqlProjects := make([]*model.BasicProject, len(project))
-
-	for i, dbModelproj := range project {
+	graphqlProjects := make([]*model.BasicProject, len(projects))
+	for i, dbModelproj := range projects {
 
 		graphqlProjects[i] = &model.BasicProject{
 			ID:          strconv.FormatInt(dbModelproj.ID, 10),
@@ -116,11 +111,7 @@ func getProjects(ctx context.Context, user_id int64) ([]*model.BasicProject, err
 	return graphqlProjects, nil
 }
 
-func getAppss(ctx context.Context, user_id int64) ([]*model.BasicApp, error) {
-	apps, err := repository.GetRepositoryManager().UserRepo.GetAppsByUserID(ctx, user_id)
-	if err != nil {
-		return nil, err
-	}
+func getAppss(apps []dbmodel.App) ([]*model.BasicApp, error) {
 	graphApps := make([]*model.BasicApp, len(apps))
 
 	for i, dbModelApp := range apps {
