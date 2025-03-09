@@ -75,6 +75,9 @@ func GetUser(ctx context.Context, id int64) (*model.User, error) {
 		Email: user.Email,
 	}
 
+
+	//  TODO : this section is very inefficient this need to optimised with conditional preloading inside repository
+
 	if slices.Contains(fields, "projects") {
 		projects, err := getProjects(ctx, user.ID)
 		if err != nil {
