@@ -78,7 +78,7 @@ func GetUser(ctx context.Context, id int64) (*model.User, error) {
 
 	/* TODO : this section is very inefficient this need to
 	optimised with better model design so we dont
-	have to iterate
+	have to iterate, no feeling for doing it now.
 	*/
 
 	if slices.Contains(fields, "projects") {
