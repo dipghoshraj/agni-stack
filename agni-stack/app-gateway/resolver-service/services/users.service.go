@@ -76,9 +76,11 @@ func GetUser(ctx context.Context, id int64) (*model.User, error) {
 		Email: user.Email,
 	}
 
-	/* TODO : this section is very inefficient this need to
+	/* TECH-DEBT : this section is very inefficient this need to
 	optimised with better model design so we dont
-	have to iterate, no feeling for doing it now.
+	have to iterate, no feeling for doing it right now
+	will do it after setup Kafka, for better implementation
+	can look at project
 	*/
 
 	if slices.Contains(fields, "projects") {
