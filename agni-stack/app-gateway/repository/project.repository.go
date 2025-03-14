@@ -11,7 +11,8 @@ import (
 
 type ProjectRepo interface {
 	CreateProject(ctx context.Context, input graphmodel.ProjectInput) (*dbmodel.Project, error)
-	GetProjects(ctx context.Context) ([]*graphmodel.Project, error)
+	GetProjects(ctx context.Context) ([]*dbmodel.Project, error)
+	GetProject(ctx context.Context, id int64) (*dbmodel.Project, error)
 }
 
 func (pr *projRepo) CreateProject(ctx context.Context, input graphmodel.ProjectInput) (*dbmodel.Project, error) {
@@ -40,42 +41,50 @@ func (pr *projRepo) CreateProject(ctx context.Context, input graphmodel.ProjectI
 	return project, nil
 }
 
-func (pr *projRepo) GetProjects(ctx context.Context) ([]*graphmodel.Project, error) {
-	var projectList []*graphmodel.Project
-	var projects []dbmodel.Project
+func (pr *projRepo) GetProjects(ctx context.Context) ([]*dbmodel.Project, error) {
+	var projects []*dbmodel.Project
 
 	userID, ok := ctx.Value("user_id").(float64)
 	if !ok || userID == 0 {
-		return projectList, fmt.Errorf("missing user ID")
+		return nil, fmt.Errorf("missing user ID")
 	}
 
-	if err := database.DB.Preload("Owner").Where("projects.owner_id = ?", userID).Find(&projects).Error; err != nil {
-		return projectList, err
+	fields := GetFields(ctx)
+	query := database.DB.Where("projects.owner_id = ?", userID)
+
+	for _, preloadField := range []string{"owner", "apps"} {
+		if slices.Contains(fields, preloadField) {
+			query = query.Preload(preloadField)
+		}
 	}
 
-	if err := database.DB.Model(&projects).Scan(&projectList).Error; err != nil {
-		return projectList, err
+	if err := query.Find(&projects).Error; err != nil {
+		return nil, err
 	}
-
-	return projectList, nil
+	return projects, nil
 }
 
-func (pr *projRepo) GetProject(ctx context.Context, id int64) (graphmodel.Project, error) {
+func (pr *projRepo) GetProject(ctx context.Context, id int64) (*dbmodel.Project, error) {
 
-	var project graphmodel.Project
 	var dbproject dbmodel.Project
 
 	userID, ok := ctx.Value("user_id").(float64)
 	if !ok || userID == 0 {
-		return project, fmt.Errorf("missing user ID")
+		return nil, fmt.Errorf("missing user ID")
 	}
 
-	if err := database.DB.Where("projects.owner_id = ? AND projects.ID = ?", userID, id).Find(&dbproject).Error; err != nil {
-		return project, err
+	fields := GetFields(ctx)
+	query := database.DB.Where("projects.owner_id = ? AND projects.ID = ?", userID, id)
+
+	for _, preloadField := range []string{"owner", "apps"} {
+		if slices.Contains(fields, preloadField) {
+			query = query.Preload(preloadField)
+		}
 	}
 
-	if err := database.DB.Model(&dbproject).Scan(&project).Error; err != nil {
-		return project, err
+	if err := query.Find(&dbproject).Error; err != nil {
+		return nil, err
 	}
-	return project, nil
+
+	return &dbproject, nil
 }
