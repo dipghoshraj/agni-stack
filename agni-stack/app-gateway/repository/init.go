@@ -13,10 +13,12 @@ var once sync.Once
 
 type userRepo struct{}
 type projRepo struct{}
+type appRepo struct{}
 
 type RepositoryManager struct {
 	UserRepo    UserRepo
 	ProjectRepo ProjectRepo
+	AppRepo     AppRepo
 }
 
 func NewUserRepository() UserRepo {
@@ -25,6 +27,10 @@ func NewUserRepository() UserRepo {
 
 func NewProjectRepository() ProjectRepo {
 	return &projRepo{}
+}
+
+func NewAppRepository() AppRepo {
+	return &appRepo{}
 }
 
 /*
@@ -40,6 +46,7 @@ func InitRepositoryManager() {
 		instance = &RepositoryManager{
 			UserRepo:    NewUserRepository(),
 			ProjectRepo: NewProjectRepository(),
+			AppRepo:     NewAppRepository(),
 		}
 		log.Println("RepositoryManager initialized")
 	})
