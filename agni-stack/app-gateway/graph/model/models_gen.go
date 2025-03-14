@@ -6,8 +6,8 @@ type App struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
 	Description string        `json:"description"`
-	Owner       *BasicUser    `json:"owner,omitempty"`
 	Image       *string       `json:"image,omitempty"`
+	Owner       *BasicUser    `json:"owner,omitempty"`
 	Project     *BasicProject `json:"project,omitempty"`
 }
 
@@ -15,6 +15,7 @@ type AppInput struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description,omitempty"`
 	Image       *string `json:"image,omitempty"`
+	ProjectID   *int32  `json:"project_id,omitempty"`
 }
 
 type AuthResponse struct {

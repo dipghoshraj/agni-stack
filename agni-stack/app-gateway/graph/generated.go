@@ -993,6 +993,47 @@ func (ec *executionContext) fieldContext_App_description(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _App_image(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_App_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Image, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_App_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "App",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _App_owner(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_App_owner(ctx, field)
 	if err != nil {
@@ -1037,47 +1078,6 @@ func (ec *executionContext) fieldContext_App_owner(_ context.Context, field grap
 				return ec.fieldContext_BasicUser_email(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type BasicUser", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _App_image(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_App_image(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_App_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "App",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1850,10 +1850,10 @@ func (ec *executionContext) fieldContext_Mutation_createApp(ctx context.Context,
 				return ec.fieldContext_App_name(ctx, field)
 			case "description":
 				return ec.fieldContext_App_description(ctx, field)
-			case "owner":
-				return ec.fieldContext_App_owner(ctx, field)
 			case "image":
 				return ec.fieldContext_App_image(ctx, field)
+			case "owner":
+				return ec.fieldContext_App_owner(ctx, field)
 			case "project":
 				return ec.fieldContext_App_project(ctx, field)
 			}
@@ -2438,10 +2438,10 @@ func (ec *executionContext) fieldContext_Query_apps(_ context.Context, field gra
 				return ec.fieldContext_App_name(ctx, field)
 			case "description":
 				return ec.fieldContext_App_description(ctx, field)
-			case "owner":
-				return ec.fieldContext_App_owner(ctx, field)
 			case "image":
 				return ec.fieldContext_App_image(ctx, field)
+			case "owner":
+				return ec.fieldContext_App_owner(ctx, field)
 			case "project":
 				return ec.fieldContext_App_project(ctx, field)
 			}
@@ -2518,10 +2518,10 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_name(ctx, field)
 			case "description":
 				return ec.fieldContext_App_description(ctx, field)
-			case "owner":
-				return ec.fieldContext_App_owner(ctx, field)
 			case "image":
 				return ec.fieldContext_App_image(ctx, field)
+			case "owner":
+				return ec.fieldContext_App_owner(ctx, field)
 			case "project":
 				return ec.fieldContext_App_project(ctx, field)
 			}
@@ -5114,7 +5114,7 @@ func (ec *executionContext) unmarshalInputAppInput(ctx context.Context, obj any)
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "description", "image"}
+	fieldsInOrder := [...]string{"name", "description", "image", "project_id"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5142,6 +5142,13 @@ func (ec *executionContext) unmarshalInputAppInput(ctx context.Context, obj any)
 				return it, err
 			}
 			it.Image = data
+		case "project_id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("project_id"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProjectID = data
 		}
 	}
 
@@ -5291,10 +5298,10 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "owner":
-			out.Values[i] = ec._App_owner(ctx, field, obj)
 		case "image":
 			out.Values[i] = ec._App_image(ctx, field, obj)
+		case "owner":
+			out.Values[i] = ec._App_owner(ctx, field, obj)
 		case "project":
 			out.Values[i] = ec._App_project(ctx, field, obj)
 		default:
@@ -6830,6 +6837,22 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint32(ctx context.Context, v any) (*int32, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt32(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint32(ctx context.Context, sel ast.SelectionSet, v *int32) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt32(*v)
 	return res
 }
 

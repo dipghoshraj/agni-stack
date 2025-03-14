@@ -4,8 +4,8 @@ type App {
   id: ID!
   name: String!
   description: String!
-  owner: BasicUser
   image: String
+  owner: BasicUser
   project: BasicProject
 }
 
@@ -13,6 +13,7 @@ input AppInput {
   name: String!
   description: String
   image: String
+  project_id: Int
 }
 
 extend type Query {
