@@ -7,6 +7,9 @@ import (
 	"context"
 	"fmt"
 	"slices"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type ProjectRepo interface {
@@ -54,7 +57,7 @@ func (pr *projRepo) GetProjects(ctx context.Context) ([]*dbmodel.Project, error)
 
 	for _, preloadField := range []string{"owner", "apps"} {
 		if slices.Contains(fields, preloadField) {
-			query = query.Preload(preloadField)
+			query = query.Preload(cases.Title(language.English).String(preloadField))
 		}
 	}
 
@@ -78,7 +81,7 @@ func (pr *projRepo) GetProject(ctx context.Context, id int64) (*dbmodel.Project,
 
 	for _, preloadField := range []string{"owner", "apps"} {
 		if slices.Contains(fields, preloadField) {
-			query = query.Preload(preloadField)
+			query = query.Preload(cases.Title(language.English).String(preloadField))
 		}
 	}
 

@@ -26,7 +26,27 @@ func GetProjects(ctx context.Context) ([]*graphmodel.Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	return projects, nil
+	return multiMapper(projects), nil
+}
+
+func GetProject(ctx context.Context, project_id string) (*graphmodel.Project, error) {
+	id, _ := strconv.ParseInt(project_id, 10, 64)
+	project, err := repository.GetRepositoryManager().ProjectRepo.GetProject(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	graphproj := mapProject(project)
+	return graphproj, nil
+}
+
+func multiMapper(projects []*dbmodel.Project) []*graphmodel.Project {
+
+	graphProjects := make([]*graphmodel.Project, len(projects)) // Pre-allocate slice
+	for i, dbProject := range projects {
+		graphProjects[i] = mapProject(dbProject)
+	}
+	return graphProjects
 }
 
 func mapProject(project *dbmodel.Project) *graphmodel.Project {

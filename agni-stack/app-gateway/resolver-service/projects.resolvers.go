@@ -8,7 +8,6 @@ import (
 	"app-gateway/graph/model"
 	service "app-gateway/resolver-service/services"
 	"context"
-	"fmt"
 )
 
 // CreateProject is the resolver for the createProject field.
@@ -34,5 +33,10 @@ func (r *queryResolver) Projects(ctx context.Context) ([]*model.Project, error) 
 
 // Project is the resolver for the project field.
 func (r *queryResolver) Project(ctx context.Context, id string) (*model.Project, error) {
-	panic(fmt.Errorf("not implemented: Project - project"))
+	project, err := service.GetProject(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return project, nil
 }
