@@ -1,8 +1,11 @@
 package repository
 
 import (
+	"context"
 	"log"
 	"sync"
+
+	"github.com/99designs/gqlgen/graphql"
 )
 
 var instance *RepositoryManager
@@ -48,4 +51,14 @@ func GetRepositoryManager() *RepositoryManager {
 	}
 
 	return instance
+}
+
+func GetFields(ctx context.Context) []string {
+	fields := graphql.CollectFieldsCtx(ctx, nil)
+	var dataField []string
+
+	for _, field := range fields {
+		dataField = append(dataField, field.Name)
+	}
+	return dataField
 }

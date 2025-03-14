@@ -10,6 +10,8 @@ type Project struct {
 	Name        string `gorm:"size:255;not null" json:"name"`
 	Description string `gorm:"size:255" json:"description"`
 	OwnerID     int64  `json:"owner_id"`
-	Owner       User   `json:"owner"`
-	Apps        []App  `json:"apps"`
+	Owner       User   `gorm:"foreignKey:OwnerID" json:"owner"`
+	Apps        []App  `gorm:"foreignKey:ProjectID" json:"apps"`
 }
+
+// Projects []Project `gorm:"foreignKey:OwnerID"`

@@ -6,20 +6,21 @@ import (
 	dbmodel "app-gateway/repository/model"
 	"context"
 	"fmt"
+	"slices"
 )
 
 type ProjectRepo interface {
-	CreateProject(ctx context.Context, input graphmodel.ProjectInput) (graphmodel.Project, error)
-	GetProjects(ctx context.Context) ([]graphmodel.Project, error)
+	CreateProject(ctx context.Context, input graphmodel.ProjectInput) (*dbmodel.Project, error)
+	GetProjects(ctx context.Context) ([]*graphmodel.Project, error)
 }
 
-func (pr *projRepo) CreateProject(ctx context.Context, input graphmodel.ProjectInput) (graphmodel.Project, error) {
-
-	var graphproj graphmodel.Project
+func (pr *projRepo) CreateProject(ctx context.Context, input graphmodel.ProjectInput) (*dbmodel.Project, error) {
 
 	userID, ok := ctx.Value("user_id").(float64)
+	fields := GetFields(ctx)
+
 	if !ok || userID == 0 {
-		return graphproj, fmt.Errorf("missing user ID")
+		return nil, fmt.Errorf("missing user ID")
 	}
 
 	project := &dbmodel.Project{
@@ -29,16 +30,18 @@ func (pr *projRepo) CreateProject(ctx context.Context, input graphmodel.ProjectI
 	}
 
 	err := database.DB.Create(&project).Error
-
-	if err = database.DB.Model(&project).Scan(&graphproj).Error; err != nil {
-		return graphproj, err
+	if err != nil {
+		return project, err
 	}
 
-	return graphproj, nil
+	if slices.Contains(fields, "owner") {
+		database.DB.Preload("Owner").First(&project, project.ID)
+	}
+	return project, nil
 }
 
-func (pr *projRepo) GetProjects(ctx context.Context) ([]graphmodel.Project, error) {
-	var projectList []graphmodel.Project
+func (pr *projRepo) GetProjects(ctx context.Context) ([]*graphmodel.Project, error) {
+	var projectList []*graphmodel.Project
 	var projects []dbmodel.Project
 
 	userID, ok := ctx.Value("user_id").(float64)
@@ -46,7 +49,7 @@ func (pr *projRepo) GetProjects(ctx context.Context) ([]graphmodel.Project, erro
 		return projectList, fmt.Errorf("missing user ID")
 	}
 
-	if err := database.DB.Where("projects.owner_id = ?", userID).Find(&projects).Error; err != nil {
+	if err := database.DB.Preload("Owner").Where("projects.owner_id = ?", userID).Find(&projects).Error; err != nil {
 		return projectList, err
 	}
 
@@ -55,4 +58,24 @@ func (pr *projRepo) GetProjects(ctx context.Context) ([]graphmodel.Project, erro
 	}
 
 	return projectList, nil
+}
+
+func (pr *projRepo) GetProject(ctx context.Context, id int64) (graphmodel.Project, error) {
+
+	var project graphmodel.Project
+	var dbproject dbmodel.Project
+
+	userID, ok := ctx.Value("user_id").(float64)
+	if !ok || userID == 0 {
+		return project, fmt.Errorf("missing user ID")
+	}
+
+	if err := database.DB.Where("projects.owner_id = ? AND projects.ID = ?", userID, id).Find(&dbproject).Error; err != nil {
+		return project, err
+	}
+
+	if err := database.DB.Model(&dbproject).Scan(&project).Error; err != nil {
+		return project, err
+	}
+	return project, nil
 }

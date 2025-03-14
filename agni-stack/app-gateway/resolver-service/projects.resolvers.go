@@ -9,7 +9,6 @@ import (
 	service "app-gateway/resolver-service/services"
 	"context"
 	"fmt"
-	"strconv"
 )
 
 // CreateProject is the resolver for the createProject field.
@@ -21,16 +20,16 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input model.Projec
 		return nil, err
 	}
 
-	return &model.Project{
-		ID:          strconv.FormatInt(project.ID, 10),
-		Name:        project.Name,
-		Description: project.Description,
-	}, nil
+	return project, nil
 }
 
 // Projects is the resolver for the projects field.
 func (r *queryResolver) Projects(ctx context.Context) ([]*model.Project, error) {
-	panic(fmt.Errorf("not implemented: Projects - projects"))
+	projects, err := service.GetProjects(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return projects, nil
 }
 
 // Project is the resolver for the project field.
