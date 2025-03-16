@@ -6,21 +6,36 @@ package resolverService
 
 import (
 	"app-gateway/graph/model"
+	service "app-gateway/resolver-service/services"
 	"context"
-	"fmt"
 )
 
 // CreateApp is the resolver for the createApp field.
 func (r *mutationResolver) CreateApp(ctx context.Context, input model.AppInput) (*model.App, error) {
-	panic(fmt.Errorf("not implemented: CreateApp - createApp"))
+	app, err := service.CreateApp(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return app, nil
 }
 
 // Apps is the resolver for the apps field.
 func (r *queryResolver) Apps(ctx context.Context) ([]*model.App, error) {
-	panic(fmt.Errorf("not implemented: Apps - apps"))
+	apps, err := service.GetApps(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return apps, nil
 }
 
 // App is the resolver for the app field.
 func (r *queryResolver) App(ctx context.Context, id string) (*model.App, error) {
-	panic(fmt.Errorf("not implemented: App - app"))
+	app, err := service.GetApp(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return app, nil
 }
