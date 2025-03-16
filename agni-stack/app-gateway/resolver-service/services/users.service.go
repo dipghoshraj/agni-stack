@@ -2,12 +2,12 @@ package services
 
 import (
 	"app-gateway/graph/model"
+	graphmodel "app-gateway/graph/model"
 	repository "app-gateway/repository"
 	dbmodel "app-gateway/repository/model"
 	"app-gateway/utils"
 	"context"
 	"fmt"
-	"slices"
 	"strconv"
 )
 
@@ -63,8 +63,7 @@ func LoginUser(ctx context.Context, input model.LoginInput) (*model.AuthResponse
 }
 
 func GetUser(ctx context.Context, id int64) (*model.User, error) {
-	fields := GetFields(ctx)
-	user, err := repository.GetRepositoryManager().UserRepo.GetUser(ctx, id, fields)
+	user, err := repository.GetRepositoryManager().UserRepo.GetUser(ctx, id)
 
 	if err != nil {
 		return nil, err
@@ -83,50 +82,57 @@ func GetUser(ctx context.Context, id int64) (*model.User, error) {
 	can look at project
 	*/
 
-	if slices.Contains(fields, "projects") {
-		projects, err := getProjects(user.Projects)
-		if err != nil {
-			return user_object, nil
-		}
-		user_object.Projects = projects
+	if len(user.Projects) != 0 {
+		user_object.Projects = userProjects(user.Projects)
 	}
 
-	if slices.Contains(fields, "apps") {
-		apps, err := getAppss(user.Apps)
-		if err != nil {
-			return nil, err
-		}
-		user_object.Apps = apps
-	}
 	return user_object, nil
 }
 
-func getProjects(projects []dbmodel.Project) ([]*model.BasicProject, error) {
+func userProjects(projects []dbmodel.Project) []*graphmodel.Project {
 
-	graphqlProjects := make([]*model.BasicProject, len(projects))
-	for i, dbModelproj := range projects {
-
-		graphqlProjects[i] = &model.BasicProject{
-			ID:          strconv.FormatInt(dbModelproj.ID, 10),
-			Name:        dbModelproj.Name,
-			Description: dbModelproj.Description,
-		}
+	graphProjects := make([]*graphmodel.Project, len(projects)) // Pre-allocate slice
+	for i, dbProject := range projects {
+		graphProjects[i] = structProject(dbProject)
 	}
-
-	return graphqlProjects, nil
+	return graphProjects
 }
 
-func getAppss(apps []dbmodel.App) ([]*model.BasicApp, error) {
-	graphApps := make([]*model.BasicApp, len(apps))
+func structProject(project dbmodel.Project) *graphmodel.Project {
 
-	for i, dbModelApp := range apps {
-		graphApps[i] = &model.BasicApp{
-			ID:          strconv.FormatInt(dbModelApp.ID, 10),
-			Name:        dbModelApp.Name,
-			Description: &dbModelApp.Description,
-			Image:       &dbModelApp.Image,
+	graphproj := &graphmodel.Project{
+		ID:          strconv.FormatInt(project.ID, 10),
+		Name:        project.Name,
+		Description: project.Description,
+	}
+
+	if project.Owner.ID != 0 {
+		graphproj.Owner = &graphmodel.BasicUser{
+			ID:    strconv.FormatInt(project.Owner.ID, 10),
+			Name:  project.Owner.Name,
+			Email: project.Owner.Email,
 		}
 	}
 
-	return graphApps, nil
+	if project.Apps != nil {
+		graphproj.Apps = structApps(project.Apps)
+	}
+
+	return graphproj
+}
+
+func structApps(apps []dbmodel.App) []*graphmodel.BasicApp {
+
+	basicApps := make([]*graphmodel.BasicApp, len(apps))
+
+	for i, app := range apps {
+		basicApps[i] = &graphmodel.BasicApp{
+			ID:          strconv.FormatInt(app.ID, 10),
+			Name:        app.Name,
+			Image:       &app.Image,
+			Description: &app.Description,
+		}
+	}
+
+	return basicApps
 }

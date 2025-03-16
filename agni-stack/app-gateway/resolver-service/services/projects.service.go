@@ -26,7 +26,7 @@ func GetProjects(ctx context.Context) ([]*graphmodel.Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	return multiMapper(projects), nil
+	return multiProjectMapper(projects), nil
 }
 
 func GetProject(ctx context.Context, project_id string) (*graphmodel.Project, error) {
@@ -40,7 +40,7 @@ func GetProject(ctx context.Context, project_id string) (*graphmodel.Project, er
 	return graphproj, nil
 }
 
-func multiMapper(projects []*dbmodel.Project) []*graphmodel.Project {
+func multiProjectMapper(projects []*dbmodel.Project) []*graphmodel.Project {
 
 	graphProjects := make([]*graphmodel.Project, len(projects)) // Pre-allocate slice
 	for i, dbProject := range projects {

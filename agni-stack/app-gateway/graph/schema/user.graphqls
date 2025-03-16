@@ -4,8 +4,7 @@ type User {
   id: ID!
   name: String!
   email: String!
-  projects: [BasicProject!]!  # One-to-Many Relationship with users
-  apps: [BasicApp!]!  # One-to-Many Relationship with usres
+  projects: [Project!]!  # One-to-Many Relationship with users
 }
 
 type BasicProject {

@@ -6,11 +6,14 @@ import (
 	"context"
 	"fmt"
 	"slices"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type UserRepo interface {
 	CreateUser(ctx context.Context, user dbmodel.User) (*dbmodel.User, error)
-	GetUser(ctx context.Context, id int64, fileds []string) (*dbmodel.User, error)
+	GetUser(ctx context.Context, id int64) (*dbmodel.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*dbmodel.User, error)
 }
 
@@ -24,16 +27,19 @@ func (r *userRepo) CreateUser(ctx context.Context, user dbmodel.User) (*dbmodel.
 	return &user, nil
 }
 
-func (r *userRepo) GetUser(ctx context.Context, id int64, fields []string) (*dbmodel.User, error) {
+func (r *userRepo) GetUser(ctx context.Context, id int64) (*dbmodel.User, error) {
 	user := dbmodel.User{}
 	query := database.DB.Where("users.id = ?", id)
+	fields := GetFields(ctx)
 
-	if slices.Contains(fields, "projects") {
-		query = query.Joins("Projects")
-	}
+	fmt.Printf("%v", fields)
 
-	if slices.Contains(fields, "apps") {
-		query = query.Preload("Apps")
+	// Need to cap the preload of the apps and projects with a limit
+
+	for _, preloadField := range []string{"projects"} {
+		if slices.Contains(fields, preloadField) {
+			query = query.Preload(cases.Title(language.English).String(preloadField)).Preload("Projects.Apps")
+		}
 	}
 
 	err := query.Omit("password").First(&user).Error
