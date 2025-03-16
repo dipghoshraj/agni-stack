@@ -85,7 +85,7 @@ func (pr *projRepo) GetProject(ctx context.Context, id int64) (*dbmodel.Project,
 		}
 	}
 
-	if err := query.Find(&dbproject).Error; err != nil {
+	if err := query.First(&dbproject).Error; err != nil {
 		return nil, err
 	}
 
